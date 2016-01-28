@@ -46,7 +46,7 @@
 #include "Tudat/Astrodynamics/MissionSegments/lambertRoutines.h"
 #include "Tudat/Astrodynamics/MissionSegments/escapeAndCapture.h"
 
-#include "SampleReturnMission/missionDefinitions.h"
+#include "spaceProjectAssignment1/missionDefinitions.h"
 
 // Declare that we want to use the namespace belonging to this course and the tudat namespace.
 // NEVER do this in a header file!

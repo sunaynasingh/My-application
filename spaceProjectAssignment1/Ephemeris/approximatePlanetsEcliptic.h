@@ -41,7 +41,7 @@
 
 #include <Eigen/Core>
 
-#include "SampleReturnMission/Ephemeris/approximatePlanets.h"
+#include "spaceProjectAssignment1/Ephemeris/approximatePlanets.h"
 
 namespace tudat_course
 {

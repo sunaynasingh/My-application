@@ -39,9 +39,9 @@
 
 #include <stdexcept>
 
-#include "SampleReturnMission/Ephemeris/approximatePlanets.h"
-#include "SampleReturnMission/Ephemeris/approximatePlanetsEcliptic.h"
-#include "SampleReturnMission/Ephemeris/getEphemeris.h"
+#include "spaceProjectAssignment1/Ephemeris/approximatePlanets.h"
+#include "spaceProjectAssignment1/Ephemeris/approximatePlanetsEcliptic.h"
+#include "spaceProjectAssignment1/Ephemeris/getEphemeris.h"
 
 namespace tudat_course
 {

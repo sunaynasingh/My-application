@@ -50,10 +50,10 @@
 
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
-#include "SampleReturnMission/Ephemeris/getEphemeris.h"
+#include "spaceProjectAssignment1/Ephemeris/getEphemeris.h"
 
-#include "SampleReturnMission/basicInputOutput.h"
-#include "SampleReturnMission/missionDefinitions.h"
+#include "spaceProjectAssignment1/basicInputOutput.h"
+#include "spaceProjectAssignment1/missionDefinitions.h"
 
 // Declare that we want to use the namespace belonging to this course and the tudat namespace.
 // NEVER do this in a header file!

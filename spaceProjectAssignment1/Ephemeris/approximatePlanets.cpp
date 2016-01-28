@@ -46,7 +46,7 @@
 #include <Tudat/Astrodynamics/BasicAstrodynamics/convertMeanToEccentricAnomalies.h>
 #include <Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h>
 
-#include "SampleReturnMission/Ephemeris/approximatePlanets.h"
+#include "spaceProjectAssignment1/Ephemeris/approximatePlanets.h"
 
 namespace tudat_course
 {

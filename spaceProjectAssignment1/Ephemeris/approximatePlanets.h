@@ -41,7 +41,7 @@
 
 #include <Eigen/Core>
 
-#include "SampleReturnMission/Ephemeris/ephemerisBase.h"
+#include "spaceProjectAssignment1/Ephemeris/ephemerisBase.h"
 
 namespace tudat_course
 {

@@ -69,7 +69,7 @@
 #include <Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h>
 #include <Tudat/Mathematics/Interpolators/lagrangeInterpolator.h>
 
-#include "LroPropagation/body.h"
+#include "spaceProjectAssignment2/body.h"
 
 //! Function to return the path of the current file.
 /*!
