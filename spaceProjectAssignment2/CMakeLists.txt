@@ -51,74 +51,26 @@ cmake_minimum_required(VERSION 2.6)
 # Specify project name.
 project(LroPropagation)
 
-# Set module path to local CMake scripts.
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMakeModules)
-
-# Define the directory with the source code.
-set(SRCROOT "${CMAKE_CURRENT_SOURCE_DIR}")
-
-# Define the code root directory.
-set(CODEROOT "${CMAKE_CURRENT_SOURCE_DIR}/..")
-
-# Set testing options based on platform.
-enable_testing()
-
-# Set platform-specific compiler flags.
-if (WIN32)
-  if (MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /Ox /W3 /FC -D_SCL_SECURE_NO_WARNINGS")
-    # Because we are using static boost libraries, with static runtime, we need to force MSVC to
-    # also use static runtime: (from http://www.cmake.org/Wiki/CMake_FAQ#Dynamic_Replace).
-    foreach(flag_var
-          CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
-          CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-      # Find all dynamic runtime (MD) references and replace with static (MT)
-      if(${flag_var} MATCHES "/MD")
-        string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
-      endif(${flag_var} MATCHES "/MD")
-    endforeach(flag_var)
-  else()
-    set(CMAKE_CXX_FLAGS 
-        "${CMAKE_CXX_FLAGS} -Wall -g -std=c++11 -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
-  endif()
-else()
-  set(CMAKE_CXX_FLAGS 
-      "${CMAKE_CXX_FLAGS} -Wall -g -std=c++11 -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
-endif()
-
-# -------------------------------------------------------------------------------------------------
-# DO NOT MANUALLY EDIT ANY SETTINGS AFTER THIS POINT IN THE FILE.
-# 
-# Pass any additional settings directly to CMake (e.g., via command-line) or by using a config file
-# (e.g., UserSettings.txt).
-# -------------------------------------------------------------------------------------------------
-
-# Load user specific settings. These can overwrite all previous settings.
-if(NOT LRO_PROPAGATION_USER_SETTINGS 
-   AND NOT DEFINED ENV{LRO_PROPAGATION_USER_SETTINGS})
-  # Load from default paths, least important first.
-  include( "../UserSettings.txt" OPTIONAL)
-  include( "UserSettings.txt" OPTIONAL)
-else()
-  message(STATUS "Loading preset...")
-  # Load the user specified file.
-  if( LRO_PROPAGATION_USER_SETTINGS )
-    include( $LRO_PROPAGATION_USER_SETTINGS OPTIONAL)
-  else()
-    include( $ENV{LRO_PROPAGATION_USER_SETTINGS} OPTIONAL)
-  endif()
-endif()
-
 # Set CMake build-type. If it not supplied by the user (either directly as an argument of through
-# the "UserSettings.txt" file, the default built type is "Release". NB: It is important this
-# section is placed AFTER the "UserSettings.txt" file is included, to ensure that that the correct
-# indiciation is given for which build type has been selected.
+# the "UserSettings.txt" file, the default built type is "Release".
 if((NOT CMAKE_BUILD_TYPE) OR (CMAKE_BUILD_TYPE STREQUAL "Release"))
     message(STATUS "WARNING: building release version!")
     set(CMAKE_BUILD_TYPE Release)
 elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
     message(STATUS "WARNING: building debug version!")
 endif()
+
+# Set module path to local CMake scripts.
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMakeModules)
+
+# Set compiler based on preferences (e.g. USE_CLANG) and system.
+include(${CMAKE_MODULE_PATH}/compiler.cmake)
+
+# Define the directory with the source code.
+set(SRCROOT "${CMAKE_CURRENT_SOURCE_DIR}")
+
+# Define the code root directory.
+set(CODEROOT "${CMAKE_CURRENT_SOURCE_DIR}/..")
 
 # Set lib and bin directories where static libraries and unit tests are built.
 if(NOT LIB_ROOT)
@@ -178,7 +130,7 @@ if(NOT Boost_USE_STATIC_RUNTIME)
 endif()
 
 # Find Boost libraries on local system.
-find_package(Boost 1.45.0 
+find_package(Boost 1.45.0
              COMPONENTS thread date_time system unit_test_framework filesystem regex REQUIRED)
 
 # Include Boost directories.
