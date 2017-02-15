@@ -22,7 +22,7 @@ static inline std::string getOutputPath( )
 
     // Strip filename from temporary string and return root-path string.
     return ( filePath_.substr( 0, filePath_.length( ) -
-                             std::string( "applicationOutput.h" ).length( ) ) ) + "PropagationResults";
+                             std::string( "lroPropagation.cpp" ).length( ) ) ) + "PropagationResults";
 }
 
 }
@@ -83,9 +83,9 @@ int main( )
 
     for( unsigned int assignmentQuestion = 1; assignmentQuestion <= 3; assignmentQuestion++ )
     {
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////            CREATE ACCELERATIONS          ////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -130,10 +130,17 @@ int main( )
         ///  MODIFY INITIAL STATE ACCORDING TO STUDENT NUMBER         ///
         ///                                                           ///
         ///                                                           ///
-        initialKeplerElements[ argumentOfPeriapsisIndex ] = 0.0;
-        initialKeplerElements[ longitudeOfAscendingNodeIndex ] = 0.0;
-        initialKeplerElements[ trueAnomalyIndex ] = 0.0;
+        initialKeplerElements[ argumentOfPeriapsisIndex ] = 30.0;
+        initialKeplerElements[ longitudeOfAscendingNodeIndex ] = 30.0;
+        initialKeplerElements[ trueAnomalyIndex ] = 30.0;
 
+
+        Eigen::Vector6d lroInitialCartesianState =  convertKeplerianToCartesianElements(
+                    initialKeplerElements, bodyMap[ "Moon" ]->getGravityFieldModel( )->getGravitationalParameter( ) );
+        if( centralBodies.at( 0 ) == "SSB" )
+        {
+            lroInitialCartesianState += bodyMap[ "Moon" ]->getStateInBaseFrameFromEphemeris( simulationStartEpoch );
+        }
 
         ///                                                         ///
         ///  DEFINE PROPAGATION AND INTEGRATION SETTINGS HERE       ///
@@ -149,8 +156,27 @@ int main( )
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
                     bodyMap, integratorSettings, propagatorSettings, true, false, false );
-        std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+        std::map< double, Eigen::VectorXd > cartesianIntegrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+        std::map< double, Eigen::VectorXd > keplerianIntegrationResult;
 
+        // Compute map of Kepler elements
+        Eigen::Vector6d currentCartesianState;
+        for( std::map< double, Eigen::VectorXd >::const_iterator stateIterator = cartesianIntegrationResult.begin( );
+             stateIterator != cartesianIntegrationResult.end( ); stateIterator++ )
+        {
+            // Retrieve current Cartesian state (convert to Moon-centered frame if needed)
+            currentCartesianState = stateIterator->second;
+
+            if( centralBodies.at( 0 ) == "SSB" )
+            {
+                currentCartesianState -=
+                        bodyMap[ "Moon" ]->getStateInBaseFrameFromEphemeris( stateIterator->first );
+            }
+
+            keplerianIntegrationResult[ stateIterator->first ] =
+                    convertCartesianToKeplerianElements(
+                        currentCartesianState, bodyMap[ "Moon" ]->getGravityFieldModel( )->getGravitationalParameter( ) );
+        }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////        PROVIDE OUTPUT TO FILE                        //////////////////////////////////////////
@@ -158,7 +184,7 @@ int main( )
 
 
         // Write Asterix propagation history to file.
-        input_output::writeDataMapToTextFile( integrationResult,
+        input_output::writeDataMapToTextFile( cartesianIntegrationResult,
                                               "lroOrbit_" +
                                               boost::lexical_cast< std::string >( assignmentQuestion ) + ".dat",
                                               tudat_applications::getOutputPath( ),
@@ -167,19 +193,30 @@ int main( )
                                               std::numeric_limits< double >::digits10,
                                               "," );
 
+        // Write Asterix propagation history to file.
+        input_output::writeDataMapToTextFile( keplerianIntegrationResult,
+                                              "lroOrbitKeplerian_" +
+                                              boost::lexical_cast< std::string >( assignmentQuestion ) + ".dat",
+                                              tudat_applications::getOutputPath( ),
+                                              "",
+                                              std::numeric_limits< double >::digits10,
+                                              std::numeric_limits< double >::digits10,
+                                              "," );
+
+
         // Save barycentric Moon state (only for 1.1)
         if( assignmentQuestion == 1  )
         {
             std::map< double, Eigen::VectorXd > moonBarycentricStates;
-            for( std::map< double, Eigen::VectorXd >::const_iterator stateIterator = integrationResult.begin( );
-                 stateIterator != integrationResult.end( ); stateIterator++ )
+            for( std::map< double, Eigen::VectorXd >::const_iterator stateIterator = cartesianIntegrationResult.begin( );
+                 stateIterator != cartesianIntegrationResult.end( ); stateIterator++ )
             {
                 moonBarycentricStates[ stateIterator->first ] = bodyMap.at( "Moon" )->getStateInBaseFrameFromEphemeris(
                             stateIterator->first );
             }
 
             // Write Asterix propagation history to file.
-            input_output::writeDataMapToTextFile( integrationResult,
+            input_output::writeDataMapToTextFile( cartesianIntegrationResult,
                                                   "moonBarycentricStates.dat",
                                                   tudat_applications::getOutputPath( ),
                                                   "",
