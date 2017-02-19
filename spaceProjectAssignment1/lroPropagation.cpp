@@ -52,7 +52,7 @@ int main( )
 
     // Set simulation time settings.
     const double simulationStartEpoch = physical_constants::JULIAN_YEAR;
-    const double simulationEndEpoch = 7.0 * tudat::physical_constants::JULIAN_DAY;
+    const double simulationEndEpoch = physical_constants::JULIAN_YEAR + 7.0 * tudat::physical_constants::JULIAN_DAY;
 
     // Define body settings for simulation.
     std::vector< std::string > bodiesToCreate;
