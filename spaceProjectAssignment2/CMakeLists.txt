@@ -191,25 +191,8 @@ list(APPEND TUDAT_APPLICATION_PROPAGATION_LIBRARIES tudat_simulation_setup tudat
     tudat_basic_astrodynamics tudat_input_output tudat_basic_mathematics tudat_propagators tudat_basics ${TUDAT_APPLICATION_EXTERNAL_LIBRARIES})
 
 
-add_executable(application_LroPropagation
-               "${SRCROOT}/lroPropagation.cpp")
-setup_executable_target(application_LroPropagation "${SRCROOT}")
-target_link_libraries(application_LroPropagation ${TUDAT_APPLICATION_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES} )
+add_executable(application_SpaceShuttleReEntry
+               "${SRCROOT}/spaceShuttleEntrySimulation.cpp")
+setup_executable_target(application_SpaceShuttleReEntry "${SRCROOT}")
+target_link_libraries(application_SpaceShuttleReEntry ${TUDAT_APPLICATION_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES} )
 
-
-add_executable(application_LroPropagation_Sol1
-               "${SRCROOT}/lroPropagation_Solution1.cpp")
-setup_executable_target(application_LroPropagation_Sol1 "${SRCROOT}")
-target_link_libraries(application_LroPropagation_Sol1 ${TUDAT_APPLICATION_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES} )
-
-
-#add_executable(application_LroPropagation_Sol2
-#               "${SRCROOT}/lroPropagation_Solution2.cpp")
-#setup_executable_target(application_LroPropagation_Sol2 "${SRCROOT}")
-#target_link_libraries(application_LroPropagation_Sol2 ${TUDAT_APPLICATION_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES} )
-
-
-#add_executable(application_LroPropagation_Sol3
-#               "${SRCROOT}/lroPropagation_Solution3.cpp")
-#setup_executable_target(application_LroPropagation_Sol3 "${SRCROOT}")
-#target_link_libraries(application_LroPropagation_Sol3 ${TUDAT_APPLICATION_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES} )
