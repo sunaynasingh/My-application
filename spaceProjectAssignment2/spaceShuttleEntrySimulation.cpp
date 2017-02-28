@@ -12,7 +12,7 @@
 
 #include <Tudat/Astrodynamics/Aerodynamics/aerodynamicGuidance.h>
 
-#include <spaceProjectAssignment1/inputOutputDirectories.h>
+#include <spaceProjectAssignment2/inputOutputDirectories.h>
 
 namespace tudat
 {
