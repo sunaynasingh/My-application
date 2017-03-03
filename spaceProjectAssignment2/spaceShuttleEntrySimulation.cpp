@@ -126,8 +126,27 @@ int main( )
     ///////////////////////             CREATE ACCELERATIONS            ///////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    // Define propagator settings variables.
+    SelectedAccelerationMap accelerationMap;
+    std::vector< std::string > bodiesToPropagate;
+    std::vector< std::string > centralBodies;
+
+    // Define acceleration model settings.
+    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfSts;
+    accelerationsOfSts[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfSts[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
+    accelerationMap[  "STS" ] = accelerationsOfSts;
+
+    bodiesToPropagate.push_back( "STS" );
+    centralBodies.push_back( "Earth" );
+
+    // Create acceleration models
+    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+
+
     ///                                                                         ///
-    /// Create acceleration models and set guidance (in that order!!) here      ///
+    /// Create and set guidance model here                                      ///
     ///                                                                         ///
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
