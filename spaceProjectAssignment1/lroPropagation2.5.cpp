@@ -62,7 +62,7 @@ int main( )
             boost::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch );
 
     // Define bodies in simulation.
-    unsigned int totalNumberOfBodies = 6;
+    unsigned int totalNumberOfBodies = 5;
     std::vector< std::string > bodyNames;
     bodyNames.resize( totalNumberOfBodies );
     bodyNames[ 0 ] = "Moon";
@@ -76,19 +76,17 @@ int main( )
                           getDefaultBodySettings( bodyNames );
                   NamedBodyMap bodyMap = createBodies( bodySettings );
 
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    // setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
-       // Create spacecraft object.
-    double vehicleMass = 1200.0;
-    bodyMap[ "LRO" ] = boost::make_shared< simulation_setup::Body >( );
-    bodyMap[ "LRO" ]->setConstantBodyMass( vehicleMass );
-
-     // setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+     // Create spacecraft object.
+      bodyMap[ "LRO" ] = boost::make_shared< simulation_setup::Body >( );
+      bodyMap[ "LRO" ]->setConstantBodyMass( 1200.0 );
+     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
     SelectedAccelerationMap accelerationMap;
     for( unsigned int i = 0; i < bodyNames.size( ); i++ )
-                      {
-                          std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > currentAccelerations;
+       {
+        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > currentAccelerations;
      for( unsigned int j = 0; j < bodyNames.size( ); j++ )
      {
          // Create central gravity acceleration between each 2 bodies.
@@ -128,6 +126,11 @@ int main( )
                 {
                     centralBodies[ i ] = "SSB";
                 }
+                // Set Moon as central 'body' for LRO
+                 else if( i == 5 )
+                 {
+                   centralBodies[ i ] = "Moon";
+                }
                 // Set Sun as central body for all planets
                 else
                 {
@@ -139,24 +142,23 @@ int main( )
             // Get initial state vector as input to integration.
                                   Eigen::VectorXd PlanetInitialState = getInitialStatesOfBodies(
                                               bodiesToPropagate_a, centralBodies, bodyMap, simulationStartEpoch );
-            bodyNames.resize(7);
-            bodyNames[6] = "LRO";
 
+             bodyNames.resize(6);
+             bodyNames[5] = "LRO";
        // Define list of bodies to propagate
         std::vector< std::string > bodiesToPropagate = bodyNames;
          unsigned int numberOfNumericalBodies = bodiesToPropagate.size( );
          centralBodies.resize( numberOfNumericalBodies );
-                               centralBodies[6] = "Moon";
+         centralBodies[5] = "Moon";
          std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > currentAccelerations2;
-          for( unsigned int j = 0; j < 5; j++ )
+          for( unsigned int j = 0; j < 4; j++ )
           {
          // Create central gravity acceleration between each 2 bodies.
           currentAccelerations2[ bodyNames.at( j ) ].push_back(boost::make_shared< AccelerationSettings >( central_gravity ) );\
            }
-          accelerationMap[ bodyNames.at( 6 ) ] = currentAccelerations2;
+          accelerationMap[ bodyNames.at( 5 ) ] = currentAccelerations2;
           basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                       bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
-
 
 
         // Set initial Kepler elements for LRO.
@@ -189,17 +191,10 @@ int main( )
                   double const fixedStepSize =10;
       // Define settings for propagation of translational dynamics.
 
-                boost::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-                           boost::make_shared< TranslationalStatePropagatorSettings < double > >
-                           ( centralBodies, accelerationModelMap, bodiesToPropagate, Part2InitialCartesianState, terminationSettings,cowell);
-
                 boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                            boost::make_shared< TranslationalStatePropagatorSettings< double > >
                            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch,cowell );
 
-                // Create list of propagation settings.
-                std::vector<boost::shared_ptr< PropagatorSettings< double > > > propagatorSettingsVector;
-                propagatorSettingsVector.push_back(translationalPropagatorSettings);
 
                 boost::shared_ptr< IntegratorSettings< > > integratorSettings =
                         boost::make_shared< IntegratorSettings< > >
