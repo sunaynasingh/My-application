@@ -128,9 +128,11 @@ int main( )
                                                    basic_astrodynamics::central_gravity ) );
         accelerationsOfLRO[ "Saturn" ].push_back( boost::make_shared< AccelerationSettings >(
                                                       basic_astrodynamics::central_gravity ) );
-        //accelerationsOfLRO[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >(
-        //                                            basic_astrodynamics::central_gravity ) );
-
+        if (assignmentQuestion == 1 || assignmentQuestion == 2)
+        {
+        accelerationsOfLRO[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >(
+                                                   basic_astrodynamics::central_gravity ) );
+}
         ////////////////////////////for part 2.4/////////////////////////////////////////////
 
         if (assignmentQuestion == 4)
@@ -160,10 +162,9 @@ int main( )
         ///  MODIFY INITIAL STATE ACCORDING TO STUDENT NUMBER         ///
         ///                                                           ///
         ///                                                           ///
-        initialKeplerElements[ argumentOfPeriapsisIndex ] = 1.885;
-        initialKeplerElements[ longitudeOfAscendingNodeIndex ] = 5.655;
-        initialKeplerElements[ trueAnomalyIndex ] = 5.655;
-
+        initialKeplerElements[ argumentOfPeriapsisIndex ] = 36.0*3*mathematical_constants::PI/180.0; //modified according to ABC
+              initialKeplerElements[ longitudeOfAscendingNodeIndex ] = 36.0*9*mathematical_constants::PI/180.0;
+              initialKeplerElements[ trueAnomalyIndex ] = 36.0*9*mathematical_constants::PI/180;
 
         Eigen::Vector6d Part2InitialCartesianState =  convertKeplerianToCartesianElements(
                     initialKeplerElements, bodyMap[ "Moon" ]->getGravityFieldModel( )->getGravitationalParameter( ) );
@@ -266,17 +267,10 @@ int main( )
 
         //           // Define settings for propagation of translational dynamics.
 
-        //////                   boost::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-        //////                           boost::make_shared< TranslationalStatePropagatorSettings < double > >
-        //////                           ( centralBodies, accelerationModelMap, bodiesToPropagate, Part2InitialCartesianState, terminationSettings, encke);
-
-        //                   boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+         //                   boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
         //                           boost::make_shared< TranslationalStatePropagatorSettings< double > >
         //                           ( centralBodies, accelerationModelMap, bodiesToPropagate, Part2InitialCartesianState, simulationEndEpoch, encke );
 
-        //////                // Create list of propagation settings.
-        //////                std::vector<boost::shared_ptr< PropagatorSettings< double > > > propagatorSettingsVector;
-        //////                propagatorSettingsVector.push_back(translationalPropagatorSettings);
 
         //                boost::shared_ptr< IntegratorSettings< > > integratorSettings =
         //                        boost::make_shared< IntegratorSettings< > >
@@ -329,67 +323,64 @@ int main( )
 
         //            }
 
-//        if (assignmentQuestion == 2 || assignmentQuestion == 4)
-//        {
-//            for (long double tolerance=pow(10,-14); tolerance<=pow(10,-10);tolerance=tolerance*10)
-//            {
+        if (assignmentQuestion == 2 || assignmentQuestion == 4)
+        {
+            for (long double tolerance=pow(10,-14); tolerance<=pow(10,-10);tolerance=tolerance*10)
+            {
 
-//                // Define settings for propagation of translational dynamics.
+                // Define settings for propagation of translational dynamics.
 
-//                ////                   boost::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-//                ////                           boost::make_shared< TranslationalStatePropagatorSettings < double > >
-//                ////                           ( centralBodies, accelerationModelMap, bodiesToPropagate, Part2InitialCartesianState, terminationSettings, encke);
+                        boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+                        boost::make_shared< TranslationalStatePropagatorSettings< double > >
+                        ( centralBodies, accelerationModelMap, bodiesToPropagate, Part2InitialCartesianState, simulationEndEpoch, encke );
 
-//                boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-//                        boost::make_shared< TranslationalStatePropagatorSettings< double > >
-//                        ( centralBodies, accelerationModelMap, bodiesToPropagate, Part2InitialCartesianState, simulationEndEpoch, encke );
+                boost::shared_ptr< IntegratorSettings< > > integratorSettings =
+                        boost::make_shared< RungeKuttaVariableStepSizeSettings< > >
+                        ( rungeKuttaVariableStepSize, simulationStartEpoch, 10.0, RungeKuttaCoefficients::rungeKuttaFehlberg78,
+                          0.05, 1000.0, tolerance, tolerance);
 
-//                ////                // Create list of propagation settings.
-//                ////                std::vector<boost::shared_ptr< PropagatorSettings< double > > > propagatorSettingsVector;
-//                ////                propagatorSettingsVector.push_back(translationalPropagatorSettings);
+                ////////////////////////////////////////////////////////////////////////////////////
+                ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
+                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//                boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-//                        boost::make_shared< RungeKuttaVariableStepSizeSettings< > >
-//                        ( rungeKuttaVariableStepSize, simulationStartEpoch, 10.0, RungeKuttaCoefficients::rungeKuttaFehlberg78,
-//                          0.05, 1000.0, tolerance, tolerance);
+                // Create simulation object and propagate dynamics.
+                SingleArcDynamicsSimulator< > dynamicsSimulator(
+                            bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                std::map< double, Eigen::VectorXd > cartesianIntegrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
-//                ////////////////////////////////////////////////////////////////////////////////////
-//                ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
-//                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//                // Create simulation object and propagate dynamics.
-//                SingleArcDynamicsSimulator< > dynamicsSimulator(
-//                            bodyMap, integratorSettings, propagatorSettings, true, false, false );
-//                std::map< double, Eigen::VectorXd > cartesianIntegrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-
-//                // Compute map of Kepler elements
-//                Eigen::Vector6d currentCartesianState;
-//                for( std::map< double, Eigen::VectorXd >::const_iterator stateIterator = cartesianIntegrationResult.begin( );
-//                     stateIterator != cartesianIntegrationResult.end( ); stateIterator++ )
-//                {
-//                    // Retrieve current Cartesian state (convert to Moon-centered frame if needed)
-//                    currentCartesianState = stateIterator->second;
-
-//                }
+                // Compute map of Kepler elements
+                Eigen::Vector6d currentCartesianState;
+                for( std::map< double, Eigen::VectorXd >::const_iterator stateIterator = cartesianIntegrationResult.begin( );
+                     stateIterator != cartesianIntegrationResult.end( ); stateIterator++ )
+                {
+                    // Retrieve current Cartesian state (convert to Moon-centered frame if needed)
+                    currentCartesianState = stateIterator->second;
 
 
-//                //                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                //                ///////////////////////        PROVIDE OUTPUT TO FILE                        //////////////////////////////////////////
-//                //                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                if( centralBodies.at( 0 ) == "SSB" )
+                                         {
+                                             currentCartesianState -=
+                                                     bodyMap[ "Moon" ]->getStateInBaseFrameFromEphemeris( stateIterator->first );
+                                         }
+
+}
+                //                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                //                ///////////////////////        PROVIDE OUTPUT TO FILE                        //////////////////////////////////////////
+                //                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//                // Write Asterix propagation history to file.
-//                input_output::writeDataMapToTextFile( cartesianIntegrationResult,
-//                                                      "lroOrbit_Encke_RK78" +
-//                                                      boost::lexical_cast< std::string >( assignmentQuestion ) + boost::lexical_cast< std::string >( tolerance )+".dat",
-//                                                      tudat_applications::getOutputPath( ),
-//                                                      "",
-//                                                      std::numeric_limits< double >::digits10,
-//                                                      std::numeric_limits< double >::digits10,
-//                                                      "," );
+                // Write Asterix propagation history to file.
+                input_output::writeDataMapToTextFile( cartesianIntegrationResult,
+                                                      "lroOrbit_Encke_RK78" +
+                                                      boost::lexical_cast< std::string >( assignmentQuestion ) + boost::lexical_cast< std::string >( tolerance )+".dat",
+                                                      tudat_applications::getOutputPath( ),
+                                                      "",
+                                                      std::numeric_limits< double >::digits10,
+                                                      std::numeric_limits< double >::digits10,
+                                                      "," );
 
 
-//            }
+            }
 
 
                 if (assignmentQuestion == 2 || assignmentQuestion == 4)
@@ -399,17 +390,9 @@ int main( )
 
                                     // Define settings for propagation of translational dynamics.
 
-                        ////                   boost::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-                        ////                           boost::make_shared< TranslationalStatePropagatorSettings < double > >
-                        ////                           ( centralBodies, accelerationModelMap, bodiesToPropagate, Part2InitialCartesianState, terminationSettings, encke);
-
-                                           boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+                                                   boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                                                    boost::make_shared< TranslationalStatePropagatorSettings< double > >
                                                    ( centralBodies, accelerationModelMap, bodiesToPropagate, Part2InitialCartesianState, simulationEndEpoch, cowell );
-
-                        ////                // Create list of propagation settings.
-                        ////                std::vector<boost::shared_ptr< PropagatorSettings< double > > > propagatorSettingsVector;
-                        ////                propagatorSettingsVector.push_back(translationalPropagatorSettings);
 
                                            boost::shared_ptr< IntegratorSettings< > > integratorSettings =
                                          boost::make_shared< RungeKuttaVariableStepSizeSettings< > >
@@ -433,9 +416,14 @@ int main( )
                                             // Retrieve current Cartesian state (convert to Moon-centered frame if needed)
                                             currentCartesianState = stateIterator->second;
 
-            }
 
+                                        if( centralBodies.at( 0 ) == "SSB" )
+                                                                 {
+                                                                     currentCartesianState -=
+                                                                             bodyMap[ "Moon" ]->getStateInBaseFrameFromEphemeris( stateIterator->first );
+                                                                 }
 
+}
 
                         //                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                         //                ///////////////////////        PROVIDE OUTPUT TO FILE                        //////////////////////////////////////////
@@ -457,4 +445,5 @@ int main( )
                 }
         }
     }
+}
 }
